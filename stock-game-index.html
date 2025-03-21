@@ -57,15 +57,7 @@
             background-color: #666;
         }
 
-        #chart {
-            margin: 20px auto;
-            width: 80%;
-            height: 300px;
-            background-color: #333;
-            border-radius: 10px;
-        }
-
-        #stats {
+        #stock-list {
             margin: 20px auto;
             display: flex;
             justify-content: center;
@@ -73,77 +65,115 @@
             flex-wrap: wrap;
         }
 
-        .stat-box {
+        .stock-box {
             padding: 15px;
             margin: 10px;
             background-color: #222;
             border-radius: 8px;
-            width: 200px;
+            width: 250px;
             text-align: center;
+        }
+
+        #high-score {
+            margin-top: 20px;
+            font-size: 1.5em;
         }
     </style>
 </head>
 <body>
     <h1>เกมหุ้น (Stock Game)</h1>
-    <div id="stats">
-        <div class="stat-box">เงินสด: <span id="cash">1000</span> บาท</div>
-        <div class="stat-box">จำนวนหุ้น: <span id="stocks">0</span> หุ้น</div>
-        <div class="stat-box">ราคาหุ้น: <span id="stockPrice">100</span> บาท</div>
-        <div class="stat-box">มูลค่าพอร์ต: <span id="portfolioValue">1000</span> บาท</div>
-    </div>
-    <button onclick="buyStock()">ซื้อหุ้น</button>
-    <button onclick="sellStock()">ขายหุ้น</button>
-    <div id="chart"></div>
+    <div id="high-score">คะแนนสูงสุด: <span id="maxProfit">0</span> บาท</div>
+    <div id="stock-list"></div>
+    <div id="portfolio"></div>
     <button id="back-btn" onclick="goBack()">กลับไปยังเมนูหลัก</button>
 
     <script>
-        let cash = 1000;
-        let stocks = 0;
-        let stockPrice = 100;
-        let portfolioValue = cash;
-        const stockPriceElement = document.getElementById("stockPrice");
-        const cashElement = document.getElementById("cash");
-        const stocksElement = document.getElementById("stocks");
-        const portfolioElement = document.getElementById("portfolioValue");
+        let cash = 10000;
+        let maxProfit = localStorage.getItem("maxProfit") || 0;
+        const stocks = [
+            { name: "หุ้น A", price: 100, shares: 0 },
+            { name: "หุ้น B", price: 120, shares: 0 },
+            { name: "หุ้น C", price: 80, shares: 0 },
+            { name: "หุ้น D", price: 150, shares: 0 },
+            { name: "หุ้น E", price: 50, shares: 0 },
+        ];
 
-        function updateDisplay() {
-            stockPriceElement.textContent = stockPrice.toFixed(2);
-            cashElement.textContent = cash.toFixed(2);
-            stocksElement.textContent = stocks;
-            portfolioElement.textContent = (cash + stocks * stockPrice).toFixed(2);
+        function updateHighScore(profit) {
+            if (profit > maxProfit) {
+                maxProfit = profit;
+                localStorage.setItem("maxProfit", maxProfit);
+            }
+            document.getElementById("maxProfit").textContent = maxProfit;
         }
 
-        function buyStock() {
-            if (cash >= stockPrice) {
-                cash -= stockPrice;
-                stocks += 1;
-                updateDisplay();
+        function renderStocks() {
+            const stockList = document.getElementById("stock-list");
+            stockList.innerHTML = "";
+            stocks.forEach((stock, index) => {
+                const stockBox = document.createElement("div");
+                stockBox.className = "stock-box";
+                stockBox.innerHTML = `
+                    <h3>${stock.name}</h3>
+                    <p>ราคา: ${stock.price.toFixed(2)} บาท</p>
+                    <p>จำนวนหุ้นที่ถือ: ${stock.shares}</p>
+                    <button onclick="buyStock(${index})">ซื้อ</button>
+                    <button onclick="sellStock(${index})">ขาย</button>
+                `;
+                stockList.appendChild(stockBox);
+            });
+            updatePortfolio();
+        }
+
+        function buyStock(index) {
+            const stock = stocks[index];
+            if (cash >= stock.price) {
+                cash -= stock.price;
+                stock.shares += 1;
+                renderStocks();
             } else {
                 alert("เงินสดไม่พอที่จะซื้อหุ้น!");
             }
         }
 
-        function sellStock() {
-            if (stocks > 0) {
-                cash += stockPrice;
-                stocks -= 1;
-                updateDisplay();
+        function sellStock(index) {
+            const stock = stocks[index];
+            if (stock.shares > 0) {
+                cash += stock.price;
+                stock.shares -= 1;
+                renderStocks();
             } else {
                 alert("ไม่มีหุ้นที่จะขาย!");
             }
         }
 
-        function randomPriceChange() {
-            const change = (Math.random() - 0.5) * 10;
-            stockPrice = Math.max(1, stockPrice + change);
-            updateDisplay();
+        function updatePortfolio() {
+            const portfolio = document.getElementById("portfolio");
+            let totalValue = cash;
+            stocks.forEach(stock => {
+                totalValue += stock.price * stock.shares;
+            });
+            updateHighScore(totalValue - 10000);
+            portfolio.innerHTML = `เงินสด: ${cash.toFixed(2)} บาท | มูลค่าพอร์ต: ${totalValue.toFixed(2)} บาท`;
         }
 
-        setInterval(randomPriceChange, 1000);
+        function randomPriceChange() {
+            stocks.forEach(stock => {
+                const change = (Math.random() - 0.5) * 20;
+                stock.price = Math.max(1, stock.price + change);
+            });
+            renderStocks();
+        }
 
         function goBack() {
             window.location.href = "index.html";
         }
+
+        // ปรับราคาอัตโนมัติทุก 5 นาที (300,000 มิลลิวินาที)
+        setInterval(randomPriceChange, 300000);
+
+        // แสดงผลครั้งแรก
+        renderStocks();
+        updateHighScore(0);
     </script>
 </body>
 </html>
