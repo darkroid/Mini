@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>เกมทายใจ (Mind Reader)</title>
     <link rel="stylesheet" href="style.css">
+    <script src="mind-reader-questions.js"></script>
     <style>
         body {
             background-color: #111;
@@ -65,46 +66,103 @@
 </head>
 <body>
     <h1>เกมทายใจ (Mind Reader)</h1>
-    <p>ยินดีต้อนรับ, <span id="playerName"></span></p>
+    <h3 id="playerName"></h3>
     <h3 id="question">กำลังโหลด...</h3>
     <div id="answers"></div>
     <div id="result"></div>
     <button id="back-btn" onclick="goBack()">กลับไปยังเมนูหลัก</button>
 
     <script>
-    async function loadQuestions() {
-        try {
-            const response = await fetch("mind-reader-questions.json");
-            if (!response.ok) throw new Error("ไม่สามารถโหลดไฟล์ JSON ได้");
-            const data = await response.json();
-            questions = data[mode];
-            showQuestion();
-        } catch (error) {
-            console.error("เกิดข้อผิดพลาดในการโหลดคำถาม:", error.message);
-            alert("ไม่สามารถโหลดคำถามได้");
+        let currentQuestion = 0;
+        let mode = "long"; // สามารถเปลี่ยนเป็น "short" ได้
+        const scores = { "อ่อนโยน": 0, "กล้าหาญ": 0, "รอบคอบ": 0, "สร้างสรรค์": 0, "ผจญภัย": 0 };
+        let questions = [];
+
+        // โหลดชื่อผู้เล่นจาก Local Storage
+        function loadPlayerName() {
+            const playerName = localStorage.getItem("playerName");
+            if (playerName) {
+                document.getElementById("playerName").textContent = `ยินดีต้อนรับ, ${playerName}`;
+            } else {
+                alert("กรุณาเข้าสู่ระบบก่อนเล่นเกม!");
+                window.location.href = "index.html";
+            }
         }
-    }
 
-    function showQuestion() {
-        const questionObj = questions[currentQuestion];
-        document.getElementById("question").textContent = questionObj.question;
+        // โหลดคำถามจากไฟล์ JavaScript
+        function loadQuestions() {
+            try {
+                questions = questionsData[mode];
+                if (!questions || questions.length === 0) throw new Error("ไม่มีคำถาม");
+                showQuestion();
+            } catch (error) {
+                console.error("เกิดข้อผิดพลาดในการโหลดคำถาม:", error.message);
+                alert("ไม่สามารถโหลดคำถามได้");
+            }
+        }
 
-        const answersDiv = document.getElementById("answers");
-        answersDiv.innerHTML = "";
-        questionObj.answers.forEach(answer => {
-            const button = document.createElement("button");
-            button.textContent = answer;
-            button.onclick = () => selectAnswer(answer);
-            answersDiv.appendChild(button);
-        });
-    }
+        // แสดงคำถามและตัวเลือก
+        function showQuestion() {
+            const questionObj = questions[currentQuestion];
+            document.getElementById("question").textContent = questionObj.question;
 
-    function goBack() {
-        window.location.href = "index.html";
-    }
+            const answersDiv = document.getElementById("answers");
+            answersDiv.innerHTML = "";
+            questionObj.answers.forEach(answer => {
+                const button = document.createElement("button");
+                button.textContent = answer;
+                button.onclick = () => selectAnswer(answer);
+                answersDiv.appendChild(button);
+            });
+        }
 
-    // เริ่มต้นการโหลดคำถาม
-    loadQuestions();
-</script>
+        // ประมวลผลคำตอบ
+        function selectAnswer(answer) {
+            const trait = classifyAnswer(answer);
+            scores[trait]++;
+            currentQuestion++;
+            if (currentQuestion >= questions.length) {
+                showResult();
+            } else {
+                showQuestion();
+            }
+        }
+
+        // วิเคราะห์ลักษณะนิสัย
+        function classifyAnswer(answer) {
+            const traits = {
+                "อ่อนโยน": ["อ่านหนังสือ", "ให้กำลังใจ", "นั่งสมาธิ", "ปลูกต้นไม้", "ขอความช่วยเหลือ"],
+                "กล้าหาญ": ["ออกกำลังกาย", "รีบช่วยทันที", "ลงมือทันที", "แอคชั่น", "ผจญภัย"],
+                "รอบคอบ": ["วางแผนการทำงาน", "วิเคราะห์ก่อนลงมือ", "วางแผนอย่างรอบคอบ", "เรียนรู้สิ่งใหม่"],
+                "สร้างสรรค์": ["วาดรูป", "ฟังเพลง", "ลองหลายวิธี", "สร้างงานศิลปะ"],
+                "ผจญภัย": ["ท่องเที่ยว", "เดินทาง", "ลองทำสิ่งใหม่", "เล่นเกม"]
+            };
+            for (const trait in traits) {
+                if (traits[trait].includes(answer)) {
+                    return trait;
+                }
+            }
+            return "อ่อนโยน";
+        }
+
+        // แสดงผลลัพธ์หลังตอบครบ
+        function showResult() {
+            const maxTrait = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+            const totalPoints = Object.values(scores).reduce((acc, val) => acc + val, 0);
+            const percentage = Math.round((scores[maxTrait] / totalPoints) * 100);
+            const resultText = `ผลลัพธ์: คุณเป็นคนที่ ${maxTrait} (${percentage}%)`;
+            const resultDiv = document.getElementById("result");
+            resultDiv.textContent = resultText;
+        }
+
+        // กลับไปยังหน้าเมนูหลัก
+        function goBack() {
+            window.location.href = "index.html";
+        }
+
+        // เริ่มต้นเกม
+        loadPlayerName();
+        loadQuestions();
+    </script>
 </body>
 </html>
