@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mini Game Menu</title>
     <link rel="stylesheet" href="style.css">
     <style>
@@ -10,8 +11,11 @@
             background-color: #000;
             color: white;
             font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
         }
 
         h1 {
@@ -19,18 +23,9 @@
             margin-bottom: 20px;
         }
 
-        p, label {
+        p {
             font-size: 1.2em;
-        }
-
-        input[type="text"] {
-            padding: 10px;
-            margin: 10px;
-            font-size: 1.2em;
-            border: 2px solid #555;
-            border-radius: 5px;
-            background-color: #333;
-            color: white;
+            margin-bottom: 20px;
         }
 
         button {
@@ -52,62 +47,18 @@
         button:active {
             background-color: #777;
         }
-
-        #login-section, #menu-section {
-            margin: 20px;
-        }
     </style>
 </head>
 <body>
-    <div id="login-section">
-        <h1>เข้าสู่ระบบ</h1>
-        <p>กรุณาใส่ชื่อผู้เล่นของคุณ</p>
-        <input type="text" id="username" placeholder="ชื่อผู้เล่น">
-        <button onclick="login()">เข้าสู่ระบบ</button>
-    </div>
+    <h1>Mini Game Menu</h1>
+    <p>เลือกเกมที่ต้องการเล่น:</p>
 
-    <div id="menu-section" style="display: none;">
-        <h1>Mini Game Menu</h1>
-        <p>ยินดีต้อนรับ, <span id="playerName"></span></p>
-        <p>เลือกเกมที่ต้องการเล่น:</p>
-        <button onclick="openColorGuess()">เกมทายสี (Color Guess)</button>
-        <button onclick="openStockGame()">เกมหุ้น (Stock Game)</button>
-        <button onclick="openMindReader()">เกมทายใจ (Mind Reader)</button>
-        <button onclick="logout()">ออกจากระบบ</button>
-    </div>
+    <!-- ปุ่มเข้าเกม -->
+    <button onclick="openColorGuess()">เกมทายสี (Color Guess)</button>
+    <button onclick="openStockGame()">เกมหุ้น (Stock Game)</button>
+    <button onclick="openEndlessRunner()">เกมวิ่งเก็บเหรียญ (Endless Runner)</button>
 
     <script>
-        function login() {
-            const username = document.getElementById("username").value;
-            if (username.trim() !== "") {
-                localStorage.setItem("playerName", username);
-                displayMenu();
-            } else {
-                alert("กรุณาใส่ชื่อผู้เล่น!");
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem("playerName");
-            displayLogin();
-        }
-
-        function displayLogin() {
-            document.getElementById("login-section").style.display = "block";
-            document.getElementById("menu-section").style.display = "none";
-        }
-
-        function displayMenu() {
-            const playerName = localStorage.getItem("playerName");
-            if (playerName) {
-                document.getElementById("playerName").textContent = playerName;
-                document.getElementById("login-section").style.display = "none";
-                document.getElementById("menu-section").style.display = "block";
-            } else {
-                displayLogin();
-            }
-        }
-
         function openColorGuess() {
             window.location.href = "color-guess-index.html";
         }
@@ -116,12 +67,9 @@
             window.location.href = "stock-game-index.html";
         }
 
-        function openMindReader() {
-            window.location.href = "mind-reader-index.html";
+        function openEndlessRunner() {
+            window.location.href = "endless-runner-index.html";
         }
-
-        // แสดงเมนูหรือหน้าล็อกอินตามสถานะ
-        displayMenu();
     </script>
 </body>
 </html>
