@@ -10,11 +10,8 @@
             background-color: #000;
             color: white;
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
+            text-align: center;
+            padding: 20px;
         }
 
         h1 {
@@ -22,9 +19,18 @@
             margin-bottom: 20px;
         }
 
-        p {
+        p, label {
             font-size: 1.2em;
-            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            margin: 10px;
+            font-size: 1.2em;
+            border: 2px solid #555;
+            border-radius: 5px;
+            background-color: #333;
+            color: white;
         }
 
         button {
@@ -46,16 +52,62 @@
         button:active {
             background-color: #777;
         }
+
+        #login-section, #menu-section {
+            margin: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>Mini Game Menu</h1>
-    <p>เลือกเกมที่ต้องการเล่น:</p>
+    <div id="login-section">
+        <h1>เข้าสู่ระบบ</h1>
+        <p>กรุณาใส่ชื่อผู้เล่นของคุณ</p>
+        <input type="text" id="username" placeholder="ชื่อผู้เล่น">
+        <button onclick="login()">เข้าสู่ระบบ</button>
+    </div>
 
-    <button onclick="openColorGuess()">เกมทายสี (Color Guess)</button>
-    <button onclick="openStockGame()">เกมหุ้น (Stock Game)</button>
+    <div id="menu-section" style="display: none;">
+        <h1>Mini Game Menu</h1>
+        <p>ยินดีต้อนรับ, <span id="playerName"></span></p>
+        <p>เลือกเกมที่ต้องการเล่น:</p>
+        <button onclick="openColorGuess()">เกมทายสี (Color Guess)</button>
+        <button onclick="openStockGame()">เกมหุ้น (Stock Game)</button>
+        <button onclick="openMindReader()">เกมทายใจ (Mind Reader)</button>
+        <button onclick="logout()">ออกจากระบบ</button>
+    </div>
 
     <script>
+        function login() {
+            const username = document.getElementById("username").value;
+            if (username.trim() !== "") {
+                localStorage.setItem("playerName", username);
+                displayMenu();
+            } else {
+                alert("กรุณาใส่ชื่อผู้เล่น!");
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("playerName");
+            displayLogin();
+        }
+
+        function displayLogin() {
+            document.getElementById("login-section").style.display = "block";
+            document.getElementById("menu-section").style.display = "none";
+        }
+
+        function displayMenu() {
+            const playerName = localStorage.getItem("playerName");
+            if (playerName) {
+                document.getElementById("playerName").textContent = playerName;
+                document.getElementById("login-section").style.display = "none";
+                document.getElementById("menu-section").style.display = "block";
+            } else {
+                displayLogin();
+            }
+        }
+
         function openColorGuess() {
             window.location.href = "color-guess-index.html";
         }
@@ -63,6 +115,13 @@
         function openStockGame() {
             window.location.href = "stock-game-index.html";
         }
+
+        function openMindReader() {
+            window.location.href = "mind-reader-index.html";
+        }
+
+        // แสดงเมนูหรือหน้าล็อกอินตามสถานะ
+        displayMenu();
     </script>
 </body>
 </html>
