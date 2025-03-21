@@ -1,76 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Game Menu</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #000;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
 
-  <title>Mini Game</title>
-  
-  <!-- Custom Styles -->
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #000;
-      color: white;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-    }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
 
-    h1 {
-      margin-bottom: 20px;
-      font-size: 2.5em;
-      text-align: center;
-    }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
 
-    p {
-      margin-bottom: 30px;
-      font-size: 1.2em;
-      text-align: center;
-    }
+        button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 1.5em;
+            background-color: #333;
+            color: white;
+            border: 2px solid #555;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-    button {
-      padding: 15px 30px;
-      margin: 10px;
-      font-size: 1.5em;
-      background-color: #333;
-      color: white;
-      border: 2px solid #555;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
+        button:hover {
+            background-color: #555;
+        }
 
-    button:hover {
-      background-color: #555;
-      transform: scale(1.05);
-    }
-
-    button:active {
-      background-color: #777;
-      transform: scale(0.98);
-    }
-  </style>
+        button:active {
+            background-color: #777;
+        }
+    </style>
 </head>
-
 <body>
-  <h1>Welcome to Mini Game</h1>
-  <p>เลือกเกมที่ต้องการเล่น:</p>
+    <h1>Mini Game Menu</h1>
+    <p>เลือกเกมที่ต้องการเล่น:</p>
 
-  <!-- ปุ่มเข้าเกม Color Guess -->
-  <button onclick="openColorGuess()">เล่นเกมทายสี (Color Guess)</button>
+    <button onclick="openColorGuess()">เกมทายสี (Color Guess)</button>
+    <button onclick="openStockGame()">เกมหุ้น (Stock Game)</button>
 
-  <!-- Script -->
-  <script>
-    function openColorGuess() {
-      window.location.href = "./Color-Guess.html";
-    }
-  </script>
+    <script>
+        function openColorGuess() {
+            window.location.href = "color-guess-index.html";
+        }
+
+        function openStockGame() {
+            window.location.href = "stock-game-index.html";
+        }
+    </script>
 </body>
 </html>
