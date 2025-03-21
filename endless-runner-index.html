@@ -12,6 +12,7 @@
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 20px;
+            margin: 0;
         }
 
         h1 {
@@ -39,32 +40,28 @@
             background-color: #666;
         }
 
-        #score {
-            margin: 20px;
-            font-size: 1.5em;
-        }
-
-        #high-score {
+        #score, #high-score {
             margin: 10px;
-            font-size: 1.2em;
+            font-size: 1.5em;
         }
     </style>
 </head>
 <body>
-    <h1>Endless Runner</h1>
+    <h1>เกมวิ่งเก็บเหรียญ (Endless Runner)</h1>
     <div id="score">คะแนน: 0</div>
     <div id="high-score">คะแนนสูงสุด: 0</div>
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <canvas id="gameCanvas" width="360" height="640"></canvas>
     <button id="back-btn" onclick="goBack()">กลับไปยังเมนูหลัก</button>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        let player = { x: 50, y: 300, size: 30, dy: 0, gravity: 0.5, jumpPower: -10 };
+        let player = { x: 50, y: 580, size: 30, dy: 0, gravity: 0.5, jumpPower: -12 };
         let obstacles = [];
+        let coins = [];
         let score = 0;
-        let highScore = localStorage.getItem("highScore") || 0;
+        let highScore = localStorage.getItem("endlessHighScore") || 0;
         let speed = 5;
         let gameOver = false;
 
@@ -76,7 +73,12 @@
 
         function spawnObstacle() {
             const size = Math.random() * 30 + 20;
-            obstacles.push({ x: canvas.width, y: 370 - size, width: size, height: size });
+            obstacles.push({ x: canvas.width, y: 610 - size, width: size, height: size });
+        }
+
+        function spawnCoin() {
+            const size = 20;
+            coins.push({ x: canvas.width, y: Math.random() * 400 + 100, size: size });
         }
 
         function drawPlayer() {
@@ -91,12 +93,21 @@
             });
         }
 
+        function drawCoins() {
+            ctx.fillStyle = "gold";
+            coins.forEach(coin => {
+                ctx.beginPath();
+                ctx.arc(coin.x, coin.y, coin.size / 2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
         function updatePlayer() {
             player.y += player.dy;
             player.dy += player.gravity;
 
-            if (player.y > 370) {
-                player.y = 370;
+            if (player.y > 610) {
+                player.y = 610;
                 player.dy = 0;
             }
         }
@@ -104,11 +115,7 @@
         function updateObstacles() {
             obstacles.forEach((obs, index) => {
                 obs.x -= speed;
-                if (obs.x + obs.width < 0) {
-                    obstacles.splice(index, 1);
-                    score++;
-                    speed += 0.1;
-                }
+                if (obs.x + obs.width < 0) obstacles.splice(index, 1);
 
                 if (
                     player.x < obs.x + obs.width &&
@@ -117,16 +124,30 @@
                     player.y + player.size > obs.y
                 ) {
                     gameOver = true;
-                    if (score > highScore) {
-                        highScore = score;
-                        localStorage.setItem("highScore", highScore);
-                    }
+                }
+            });
+        }
+
+        function updateCoins() {
+            coins.forEach((coin, index) => {
+                coin.x -= speed;
+                if (coin.x + coin.size < 0) coins.splice(index, 1);
+
+                if (
+                    player.x < coin.x + coin.size &&
+                    player.x + player.size > coin.x &&
+                    player.y < coin.y + coin.size &&
+                    player.y + player.size > coin.y
+                ) {
+                    coins.splice(index, 1);
+                    score += 10;
+                    speed += 0.1;
                 }
             });
         }
 
         function jump() {
-            if (player.y >= 370) {
+            if (player.y >= 610) {
                 player.dy = player.jumpPower;
             }
         }
@@ -135,16 +156,24 @@
             if (gameOver) {
                 ctx.fillStyle = "white";
                 ctx.font = "30px Arial";
-                ctx.fillText("Game Over", 300, 200);
-                ctx.fillText(`คะแนน: ${score}`, 300, 250);
+                ctx.fillText("Game Over", 100, 320);
+                ctx.fillText(`คะแนน: ${score}`, 100, 360);
+                if (score > highScore) {
+                    highScore = score;
+                    localStorage.setItem("endlessHighScore", highScore);
+                }
                 return;
             }
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
             drawPlayer();
             drawObstacles();
+            drawCoins();
+
             updatePlayer();
             updateObstacles();
+            updateCoins();
 
             document.getElementById("score").textContent = `คะแนน: ${score}`;
             document.getElementById("high-score").textContent = `คะแนนสูงสุด: ${highScore}`;
@@ -152,13 +181,13 @@
             requestAnimationFrame(gameLoop);
         }
 
+        document.addEventListener("touchstart", jump);
         document.addEventListener("keydown", (e) => {
-            if (e.code === "Space" || e.code === "ArrowUp") {
-                jump();
-            }
+            if (e.code === "Space" || e.code === "ArrowUp") jump();
         });
 
         setInterval(spawnObstacle, 1000);
+        setInterval(spawnCoin, 1500);
 
         gameLoop();
     </script>
