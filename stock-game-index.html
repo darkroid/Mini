@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เกมหุ้น (Stock Game)</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #111;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        p {
+            margin: 5px;
+            font-size: 1.2em;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 1.2em;
+            background-color: #333;
+            color: white;
+            border: 2px solid #555;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        button:active {
+            background-color: #777;
+        }
+
+        #back-btn {
+            margin-top: 20px;
+            background-color: #444;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #back-btn:hover {
+            background-color: #666;
+        }
+
+        #chart {
+            margin: 20px auto;
+            width: 80%;
+            height: 300px;
+            background-color: #333;
+            border-radius: 10px;
+        }
+
+        #stats {
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            padding: 15px;
+            margin: 10px;
+            background-color: #222;
+            border-radius: 8px;
+            width: 200px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>เกมหุ้น (Stock Game)</h1>
+    <div id="stats">
+        <div class="stat-box">เงินสด: <span id="cash">1000</span> บาท</div>
+        <div class="stat-box">จำนวนหุ้น: <span id="stocks">0</span> หุ้น</div>
+        <div class="stat-box">ราคาหุ้น: <span id="stockPrice">100</span> บาท</div>
+        <div class="stat-box">มูลค่าพอร์ต: <span id="portfolioValue">1000</span> บาท</div>
+    </div>
+    <button onclick="buyStock()">ซื้อหุ้น</button>
+    <button onclick="sellStock()">ขายหุ้น</button>
+    <div id="chart"></div>
+    <button id="back-btn" onclick="goBack()">กลับไปยังเมนูหลัก</button>
+
+    <script>
+        let cash = 1000;
+        let stocks = 0;
+        let stockPrice = 100;
+        let portfolioValue = cash;
+        const stockPriceElement = document.getElementById("stockPrice");
+        const cashElement = document.getElementById("cash");
+        const stocksElement = document.getElementById("stocks");
+        const portfolioElement = document.getElementById("portfolioValue");
+
+        function updateDisplay() {
+            stockPriceElement.textContent = stockPrice.toFixed(2);
+            cashElement.textContent = cash.toFixed(2);
+            stocksElement.textContent = stocks;
+            portfolioElement.textContent = (cash + stocks * stockPrice).toFixed(2);
+        }
+
+        function buyStock() {
+            if (cash >= stockPrice) {
+                cash -= stockPrice;
+                stocks += 1;
+                updateDisplay();
+            } else {
+                alert("เงินสดไม่พอที่จะซื้อหุ้น!");
+            }
+        }
+
+        function sellStock() {
+            if (stocks > 0) {
+                cash += stockPrice;
+                stocks -= 1;
+                updateDisplay();
+            } else {
+                alert("ไม่มีหุ้นที่จะขาย!");
+            }
+        }
+
+        function randomPriceChange() {
+            const change = (Math.random() - 0.5) * 10;
+            stockPrice = Math.max(1, stockPrice + change);
+            updateDisplay();
+        }
+
+        setInterval(randomPriceChange, 1000);
+
+        function goBack() {
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>
