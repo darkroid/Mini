@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endless Runner</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #111;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        canvas {
+            background-color: #333;
+            border-radius: 10px;
+            display: block;
+            margin: 20px auto;
+        }
+
+        #back-btn {
+            margin-top: 20px;
+            background-color: #444;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #back-btn:hover {
+            background-color: #666;
+        }
+
+        #score {
+            margin: 20px;
+            font-size: 1.5em;
+        }
+
+        #high-score {
+            margin: 10px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Endless Runner</h1>
+    <div id="score">คะแนน: 0</div>
+    <div id="high-score">คะแนนสูงสุด: 0</div>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <button id="back-btn" onclick="goBack()">กลับไปยังเมนูหลัก</button>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let player = { x: 50, y: 300, size: 30, dy: 0, gravity: 0.5, jumpPower: -10 };
+        let obstacles = [];
+        let score = 0;
+        let highScore = localStorage.getItem("highScore") || 0;
+        let speed = 5;
+        let gameOver = false;
+
+        document.getElementById("high-score").textContent = `คะแนนสูงสุด: ${highScore}`;
+
+        function goBack() {
+            window.location.href = "index.html";
+        }
+
+        function spawnObstacle() {
+            const size = Math.random() * 30 + 20;
+            obstacles.push({ x: canvas.width, y: 370 - size, width: size, height: size });
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = "cyan";
+            ctx.fillRect(player.x, player.y, player.size, player.size);
+        }
+
+        function drawObstacles() {
+            ctx.fillStyle = "red";
+            obstacles.forEach(obs => {
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+            });
+        }
+
+        function updatePlayer() {
+            player.y += player.dy;
+            player.dy += player.gravity;
+
+            if (player.y > 370) {
+                player.y = 370;
+                player.dy = 0;
+            }
+        }
+
+        function updateObstacles() {
+            obstacles.forEach((obs, index) => {
+                obs.x -= speed;
+                if (obs.x + obs.width < 0) {
+                    obstacles.splice(index, 1);
+                    score++;
+                    speed += 0.1;
+                }
+
+                if (
+                    player.x < obs.x + obs.width &&
+                    player.x + player.size > obs.x &&
+                    player.y < obs.y + obs.height &&
+                    player.y + player.size > obs.y
+                ) {
+                    gameOver = true;
+                    if (score > highScore) {
+                        highScore = score;
+                        localStorage.setItem("highScore", highScore);
+                    }
+                }
+            });
+        }
+
+        function jump() {
+            if (player.y >= 370) {
+                player.dy = player.jumpPower;
+            }
+        }
+
+        function gameLoop() {
+            if (gameOver) {
+                ctx.fillStyle = "white";
+                ctx.font = "30px Arial";
+                ctx.fillText("Game Over", 300, 200);
+                ctx.fillText(`คะแนน: ${score}`, 300, 250);
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawObstacles();
+            updatePlayer();
+            updateObstacles();
+
+            document.getElementById("score").textContent = `คะแนน: ${score}`;
+            document.getElementById("high-score").textContent = `คะแนนสูงสุด: ${highScore}`;
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        document.addEventListener("keydown", (e) => {
+            if (e.code === "Space" || e.code === "ArrowUp") {
+                jump();
+            }
+        });
+
+        setInterval(spawnObstacle, 1000);
+
+        gameLoop();
+    </script>
+</body>
+</html>
