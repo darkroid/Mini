@@ -1,0 +1,77 @@
+<script>
+    let currentQuestion = 0;
+    let mode = "short"; // short หรือ long
+    const scores = { "อ่อนโยน": 0, "กล้าหาญ": 0, "รอบคอบ": 0, "สร้างสรรค์": 0, "ผจญภัย": 0 };
+    let questions = [];
+
+    async function loadQuestions() {
+        const response = await fetch("mind-reader-questions.json");
+        const data = await response.json();
+        questions = data[mode];
+        showQuestion();
+    }
+
+    function setMode(selectedMode) {
+        mode = selectedMode;
+        currentQuestion = 0;
+        loadQuestions();
+    }
+
+    function showQuestion() {
+        const questionObj = questions[currentQuestion];
+        document.getElementById("question").textContent = questionObj.question;
+
+        const answersDiv = document.getElementById("answers");
+        answersDiv.innerHTML = "";
+        questionObj.answers.forEach(answer => {
+            const button = document.createElement("button");
+            button.textContent = answer;
+            button.onclick = () => selectAnswer(answer);
+            answersDiv.appendChild(button);
+        });
+    }
+
+    function selectAnswer(answer) {
+        const trait = classifyAnswer(answer);
+        scores[trait]++;
+        currentQuestion++;
+        if (mode === "short" || currentQuestion >= questions.length) {
+            showResult(trait);
+        } else {
+            showQuestion();
+        }
+    }
+
+    function classifyAnswer(answer) {
+        const traits = {
+            "อ่อนโยน": ["อ่านหนังสือ", "ให้กำลังใจ", "นั่งสมาธิ", "ขอความช่วยเหลือ"],
+            "กล้าหาญ": ["ออกกำลังกาย", "รีบช่วยทันที", "รีบแก้ทันที"],
+            "รอบคอบ": ["วางแผนการทำงาน", "วางแผนก่อนช่วย", "คิดก่อนทำ"],
+            "สร้างสรรค์": ["วาดรูป", "ฟังเพลง", "ลองหลายวิธี"],
+            "ผจญภัย": ["ท่องเที่ยว", "ทำอาหาร", "เล่นเกม"]
+        };
+        for (const trait in traits) {
+            if (traits[trait].includes(answer)) {
+                return trait;
+            }
+        }
+        return "อ่อนโยน";
+    }
+
+    function showResult(trait) {
+        let resultText = `คุณเป็นคนที่ ${trait}`;
+        if (mode === "long") {
+            const maxTrait = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+            resultText = `ผลรวม: คุณเป็นคนที่ ${maxTrait}!`;
+        }
+        const resultDiv = document.getElementById("result");
+        resultDiv.textContent = resultText;
+    }
+
+    function goBack() {
+        window.location.href = "index.html";
+    }
+
+    // เลือกรูปแบบเกม
+    setMode("short");
+</script>
