@@ -74,7 +74,7 @@
     <script>
     async function loadQuestions() {
         try {
-            const response = await fetch("./mind-reader-questions.json");
+            const response = await fetch("mind-reader-questions.json");
             if (!response.ok) throw new Error("ไม่สามารถโหลดไฟล์ JSON ได้");
             const data = await response.json();
             questions = data[mode];
