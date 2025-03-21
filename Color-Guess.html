@@ -1,76 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title>Mini Game</title>
-  
-  <!-- Custom Styles -->
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #000;
-      color: white;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-    }
-
-    h1 {
-      margin-bottom: 20px;
-      font-size: 2.5em;
-      text-align: center;
-    }
-
-    p {
-      margin-bottom: 30px;
-      font-size: 1.2em;
-      text-align: center;
-    }
-
-    button {
-      padding: 15px 30px;
-      margin: 10px;
-      font-size: 1.5em;
-      background-color: #333;
-      color: white;
-      border: 2px solid #555;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #555;
-      transform: scale(1.05);
-    }
-
-    button:active {
-      background-color: #777;
-      transform: scale(0.98);
-    }
-  </style>
+    <title>เกมทายชุดสี</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #222;
+            color: white;
+        }
+        #color-selection, #guess-display {
+            margin: 20px;
+        }
+        .color-btn {
+            width: 50px;
+            height: 50px;
+            margin: 5px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        #guess-display {
+            margin: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+        .guess-block {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            margin: 5px;
+            border-radius: 5px;
+            border: none;
+        }
+        #message, #attempt-count {
+            margin: 20px;
+            font-size: 18px;
+        }
+        select {
+            margin: 10px;
+            padding: 5px;
+            font-size: 16px;
+        }
+        #check-btn {
+            margin: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            background-color: #555;
+            color: white;
+            border: none;
+        }
+        #check-btn:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
-
 <body>
-  <h1>Welcome to Mini Game</h1>
-  <p>เลือกเกมที่ต้องการเล่น:</p>
+    <h1>เกมทายชุดสี</h1>
+    <label for="colorCount">เลือกจำนวนสี:</label>
+    <select id="colorCount" onchange="startGame()">
+        <option value="3">3 สี</option>
+        <option value="4" selected>4 สี</option>
+        <option value="5">5 สี</option>
+        <option value="6">6 สี</option>
+        <option value="7">7 สี</option>
+        <option value="8">8 สี</option>
+    </select>
 
-  <!-- ปุ่มเข้าเกม Color Guess -->
-  <button onclick="openColorGuess()">เล่นเกมทายสี (Color Guess)</button>
+    <div id="attempt-count">จำนวนครั้งที่ทาย: 0</div>
+    <div id="message">เลือกชุดสีตามจำนวนที่กำหนด</div>
+    <div id="color-selection"></div>
+    <div id="guess-display"></div>
+    <button id="check-btn" onclick="checkGuess()" disabled>ตรวจสอบ</button>
 
-  <!-- Script -->
-  <script>
-    function openColorGuess() {
-      window.location.href = "color-guess.html";
-    }
-  </script>
+    <script>
+        const colorsPool = ["red", "green", "blue", "yellow", "purple", "orange", "pink", "cyan"];
+        let codeLength = 4;
+        let secretCode = [];
+        let currentGuess = [];
+        let attemptCount = 0;
+
+        function generateSecretCode() {
+            secretCode = [];
+            const selectedColors = colorsPool.slice(0, codeLength);
+            for (let i = 0; i < codeLength; i++) {
+                const randomColor = selectedColors[Math.floor(Math.random() * selectedColors.length)];
+                secretCode.push(randomColor);
+            }
+            console.log("รหัสลับ:", secretCode); // Debug
+        }
+
+        function createColorButtons() {
+            const colorSelection = document.getElementById("color-selection");
+            colorSelection.innerHTML = "";
+            const selectedColors = colorsPool.slice(0, codeLength);
+            selectedColors.forEach(color => {
+                const btn = document.createElement("button");
+                btn.className = "color-btn";
+                btn.style.backgroundColor = color;
+                btn.onclick = () => selectColor(color);
+                colorSelection.appendChild(btn);
+            });
+        }
+
+        function selectColor(color) {
+            if (currentGuess.length < codeLength) {
+                currentGuess.push(color);
+                updateGuessDisplay();
+                if (currentGuess.length === codeLength) {
+                    document.getElementById("check-btn").disabled = false;
+                }
+            }
+        }
+
+        function updateGuessDisplay() {
+            const guessDisplay = document.getElementById("guess-display");
+            guessDisplay.innerHTML = "";
+            currentGuess.forEach(color => {
+                const block = document.createElement("div");
+                block.className = "guess-block";
+                block.style.backgroundColor = color;
+                guessDisplay.appendChild(block);
+            });
+        }
+
+        function checkGuess() {
+            let correctPositionCount = 0;
+            let correctColorCount = 0;
+            let remainingSecret = [...secretCode];
+            let remainingGuess = [];
+
+            for (let i = 0; i < codeLength; i++) {
+                if (currentGuess[i] === secretCode[i]) {
+                    correctPositionCount++;
+                    remainingSecret[i] = null;
+                } else {
+                    remainingGuess.push(currentGuess[i]);
+                }
+            }
+
+            remainingGuess.forEach(color => {
+                const index = remainingSecret.indexOf(color);
+                if (index !== -1) {
+                    correctColorCount++;
+                    remainingSecret[index] = null;
+                }
+            });
+
+            attemptCount++;
+            document.getElementById("attempt-count").textContent = `จำนวนครั้งที่ทาย: ${attemptCount}`;
+
+            const message = document.getElementById("message");
+            if (correctPositionCount === codeLength) {
+                message.textContent = "ถูกทั้งหมด! คุณชนะ!";
+                alert("ยินดีด้วย! คุณทายถูกทั้งหมด!");
+                startGame();
+            } else {
+                message.textContent = `ถูกสีและตำแหน่ง: ${correctPositionCount}, ถูกเฉพาะสี: ${correctColorCount}`;
+            }
+
+            currentGuess = [];
+            updateGuessDisplay();
+            document.getElementById("check-btn").disabled = true;
+        }
+
+        function startGame() {
+            codeLength = parseInt(document.getElementById("colorCount").value);
+            attemptCount = 0;
+            document.getElementById("attempt-count").textContent = `จำนวนครั้งที่ทาย: ${attemptCount}`;
+            generateSecretCode();
+            createColorButtons();
+            currentGuess = [];
+            updateGuessDisplay();
+            document.getElementById("message").textContent = "เลือกชุดสีตามจำนวนที่กำหนด";
+            document.getElementById("check-btn").disabled = true;
+        }
+
+        startGame();
+    </script>
 </body>
 </html>
