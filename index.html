@@ -28,6 +28,16 @@
             margin-bottom: 20px;
         }
 
+        input {
+            padding: 10px;
+            margin: 5px;
+            font-size: 1.2em;
+            border: 2px solid #555;
+            border-radius: 5px;
+            background-color: #333;
+            color: white;
+        }
+
         button {
             padding: 15px 30px;
             margin: 10px;
@@ -47,18 +57,55 @@
         button:active {
             background-color: #777;
         }
+
+        #login-section {
+            margin-bottom: 20px;
+        }
+
+        #username {
+            margin: 10px;
+        }
+
+        #greeting {
+            font-size: 1.5em;
+            margin: 10px;
+        }
     </style>
 </head>
 <body>
     <h1>Mini Game Menu</h1>
-    <p>เลือกเกมที่ต้องการเล่น:</p>
+
+    <!-- ระบบ Login -->
+    <div id="login-section">
+        <input type="text" id="username" placeholder="กรอกชื่อผู้เล่น" />
+        <button onclick="login()">เข้าสู่ระบบ</button>
+    </div>
+
+    <div id="greeting"></div>
 
     <!-- ปุ่มเข้าเกม -->
     <button onclick="openColorGuess()">เกมทายสี (Color Guess)</button>
     <button onclick="openStockGame()">เกมหุ้น (Stock Game)</button>
     <button onclick="openEndlessRunner()">เกมวิ่งเก็บเหรียญ (Endless Runner)</button>
+    <button onclick="openEndlessMind()">เกมทายใจหาญ (Endless)</button>
 
     <script>
+        function login() {
+            const username = document.getElementById("username").value;
+            if (username) {
+                localStorage.setItem("username", username);
+                displayGreeting();
+            }
+        }
+
+        function displayGreeting() {
+            const username = localStorage.getItem("username");
+            if (username) {
+                document.getElementById("login-section").style.display = "none";
+                document.getElementById("greeting").textContent = `ยินดีต้อนรับ, ${username}`;
+            }
+        }
+
         function openColorGuess() {
             window.location.href = "color-guess-index.html";
         }
@@ -70,6 +117,12 @@
         function openEndlessRunner() {
             window.location.href = "endless-runner-index.html";
         }
+
+        function openEndlessMind() {
+            window.location.href = "endless-mind-index.html";
+        }
+
+        displayGreeting();
     </script>
 </body>
 </html>
