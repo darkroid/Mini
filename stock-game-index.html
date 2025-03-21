@@ -74,22 +74,30 @@
             text-align: center;
         }
 
-        #high-score {
-            margin-top: 20px;
+        #high-score, #countdown {
+            margin-top: 10px;
             font-size: 1.5em;
         }
     </style>
 </head>
 <body>
     <h1>เกมหุ้น (Stock Game)</h1>
+
+    <p>ชื่อผู้เล่น: <span id="playerName">ผู้เล่น</span></p>
+    <p>เงินสด: <span id="cash">10000</span> บาท</p>
+    <p>มูลค่าพอร์ต: <span id="portfolioValue">10000</span> บาท</p>
+    <p id="countdown">เวลาปรับราคาหุ้น: 300 วินาที</p>
     <div id="high-score">คะแนนสูงสุด: <span id="maxProfit">0</span> บาท</div>
     <div id="stock-list"></div>
-    <div id="portfolio"></div>
     <button id="back-btn" onclick="goBack()">กลับไปยังเมนูหลัก</button>
 
     <script>
-        let cash = 10000;
-        let maxProfit = localStorage.getItem("maxProfit") || 0;
+        const stockChangeInterval = 300; // 5 นาที (300 วินาที)
+        let cash = parseFloat(localStorage.getItem("cash")) || 10000;
+        let maxProfit = parseFloat(localStorage.getItem("maxProfit")) || 0;
+        let countdown = stockChangeInterval;
+        const playerName = localStorage.getItem("playerName") || "ผู้เล่น";
+        
         const stocks = [
             { name: "หุ้น A", price: 100, shares: 0 },
             { name: "หุ้น B", price: 120, shares: 0 },
@@ -129,6 +137,7 @@
             if (cash >= stock.price) {
                 cash -= stock.price;
                 stock.shares += 1;
+                saveData();
                 renderStocks();
             } else {
                 alert("เงินสดไม่พอที่จะซื้อหุ้น!");
@@ -140,20 +149,27 @@
             if (stock.shares > 0) {
                 cash += stock.price;
                 stock.shares -= 1;
+                saveData();
                 renderStocks();
             } else {
                 alert("ไม่มีหุ้นที่จะขาย!");
             }
         }
 
+        function saveData() {
+            localStorage.setItem("cash", cash);
+            localStorage.setItem("playerName", playerName);
+        }
+
         function updatePortfolio() {
-            const portfolio = document.getElementById("portfolio");
             let totalValue = cash;
             stocks.forEach(stock => {
                 totalValue += stock.price * stock.shares;
             });
             updateHighScore(totalValue - 10000);
-            portfolio.innerHTML = `เงินสด: ${cash.toFixed(2)} บาท | มูลค่าพอร์ต: ${totalValue.toFixed(2)} บาท`;
+            document.getElementById("cash").textContent = cash.toFixed(2);
+            document.getElementById("portfolioValue").textContent = totalValue.toFixed(2);
+            document.getElementById("playerName").textContent = playerName;
         }
 
         function randomPriceChange() {
@@ -161,15 +177,24 @@
                 const change = (Math.random() - 0.5) * 20;
                 stock.price = Math.max(1, stock.price + change);
             });
+            countdown = stockChangeInterval;
             renderStocks();
+        }
+
+        function updateCountdown() {
+            if (countdown > 0) {
+                countdown--;
+                document.getElementById("countdown").textContent = `เวลาปรับราคาหุ้น: ${countdown} วินาที`;
+            } else {
+                randomPriceChange();
+            }
         }
 
         function goBack() {
             window.location.href = "index.html";
         }
 
-        // ปรับราคาอัตโนมัติทุก 5 นาที (300,000 มิลลิวินาที)
-        setInterval(randomPriceChange, 300000);
+        setInterval(updateCountdown, 1000); // อัปเดตนับถอยหลังทุกวินาที
 
         // แสดงผลครั้งแรก
         renderStocks();
