@@ -88,7 +88,7 @@
         }
 
         async function loadQuestions() {
-            const response = await fetch("mind-reader-questions.json");
+            const response = await fetch("./mind-reader-questions.json");
             const data = await response.json();
             questions = data[mode];
             showQuestion();
