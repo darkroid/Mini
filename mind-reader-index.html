@@ -72,93 +72,39 @@
     <button id="back-btn" onclick="goBack()">กลับไปยังเมนูหลัก</button>
 
     <script>
-        let currentQuestion = 0;
-        let mode = "short"; // short หรือ long
-        const scores = { "อ่อนโยน": 0, "กล้าหาญ": 0, "รอบคอบ": 0, "สร้างสรรค์": 0, "ผจญภัย": 0 };
-        let questions = [];
-
-        function loadPlayerName() {
-            const playerName = localStorage.getItem("playerName");
-            if (playerName) {
-                document.getElementById("playerName").textContent = playerName;
-            } else {
-                alert("กรุณาเข้าสู่ระบบก่อนเล่นเกม!");
-                window.location.href = "index.html";
-            }
-        }
-
-        async function loadQuestions() {
+    async function loadQuestions() {
+        try {
             const response = await fetch("./mind-reader-questions.json");
+            if (!response.ok) throw new Error("ไม่สามารถโหลดไฟล์ JSON ได้");
             const data = await response.json();
             questions = data[mode];
             showQuestion();
-        }
-
-        function setMode(selectedMode) {
-            mode = selectedMode;
-            currentQuestion = 0;
-            loadQuestions();
-        }
-
-        function showQuestion() {
-            const questionObj = questions[currentQuestion];
-            document.getElementById("question").textContent = questionObj.question;
-
-            const answersDiv = document.getElementById("answers");
-            answersDiv.innerHTML = "";
-            questionObj.answers.forEach(answer => {
-                const button = document.createElement("button");
-                button.textContent = answer;
-                button.onclick = () => selectAnswer(answer);
-                answersDiv.appendChild(button);
-            });
-        }
-
-        function selectAnswer(answer) {
-            const trait = classifyAnswer(answer);
-            scores[trait]++;
-            currentQuestion++;
-            if (mode === "short" || currentQuestion >= questions.length) {
-                showResult(trait);
-            } else {
-                showQuestion();
-            }
-        }
-
-        function classifyAnswer(answer) {
-    const traits = {
-        "อ่อนโยน": ["อ่านหนังสือ", "ให้กำลังใจ", "นั่งสมาธิ", "ปลูกต้นไม้", "ขอความช่วยเหลือ"],
-        "กล้าหาญ": ["ออกกำลังกาย", "รีบช่วยทันที", "ลงมือทันที", "แอคชั่น"],
-        "รอบคอบ": ["วางแผนการทำงาน", "วิเคราะห์ก่อนลงมือ", "วางแผนอย่างรอบคอบ", "เรียนรู้สิ่งใหม่"],
-        "สร้างสรรค์": ["วาดรูป", "สร้างงานศิลปะ", "ฟังเพลง", "มองหาแรงบันดาลใจ"],
-        "ผจญภัย": ["ท่องเที่ยว", "เดินทาง", "ผจญภัย", "หาทางหนี"]
-    };
-    for (const trait in traits) {
-        if (traits[trait].includes(answer)) {
-            return trait;
+        } catch (error) {
+            console.error("เกิดข้อผิดพลาดในการโหลดคำถาม:", error.message);
+            alert("ไม่สามารถโหลดคำถามได้");
         }
     }
-    return "อ่อนโยน";
-}
 
+    function showQuestion() {
+        const questionObj = questions[currentQuestion];
+        document.getElementById("question").textContent = questionObj.question;
 
-        function showResult() {
-    const maxTrait = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
-    const totalPoints = Object.values(scores).reduce((acc, val) => acc + val, 0);
-    const percentage = Math.round((scores[maxTrait] / totalPoints) * 100);
-    const resultText = `ผลลัพธ์: คุณเป็นคนที่ ${maxTrait} (${percentage}%)`;
-    const resultDiv = document.getElementById("result");
-    resultDiv.textContent = resultText;
-}
+        const answersDiv = document.getElementById("answers");
+        answersDiv.innerHTML = "";
+        questionObj.answers.forEach(answer => {
+            const button = document.createElement("button");
+            button.textContent = answer;
+            button.onclick = () => selectAnswer(answer);
+            answersDiv.appendChild(button);
+        });
+    }
 
+    function goBack() {
+        window.location.href = "index.html";
+    }
 
-        function goBack() {
-            window.location.href = "index.html";
-        }
-
-        // โหลดชื่อผู้เล่นและเริ่มเกม
-        loadPlayerName();
-        setMode("short");
-    </script>
+    // เริ่มต้นการโหลดคำถาม
+    loadQuestions();
+</script>
 </body>
 </html>
