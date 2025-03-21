@@ -126,30 +126,31 @@
         }
 
         function classifyAnswer(answer) {
-            const traits = {
-                "อ่อนโยน": ["อ่านหนังสือ", "ให้กำลังใจ", "นั่งสมาธิ", "ขอความช่วยเหลือ"],
-                "กล้าหาญ": ["ออกกำลังกาย", "รีบช่วยทันที", "รีบแก้ทันที"],
-                "รอบคอบ": ["วางแผนการทำงาน", "วางแผนก่อนช่วย", "คิดก่อนทำ"],
-                "สร้างสรรค์": ["วาดรูป", "ฟังเพลง", "ลองหลายวิธี"],
-                "ผจญภัย": ["ท่องเที่ยว", "ทำอาหาร", "เล่นเกม"]
-            };
-            for (const trait in traits) {
-                if (traits[trait].includes(answer)) {
-                    return trait;
-                }
-            }
-            return "อ่อนโยน";
+    const traits = {
+        "อ่อนโยน": ["อ่านหนังสือ", "ให้กำลังใจ", "นั่งสมาธิ", "ปลูกต้นไม้", "ขอความช่วยเหลือ"],
+        "กล้าหาญ": ["ออกกำลังกาย", "รีบช่วยทันที", "ลงมือทันที", "แอคชั่น"],
+        "รอบคอบ": ["วางแผนการทำงาน", "วิเคราะห์ก่อนลงมือ", "วางแผนอย่างรอบคอบ", "เรียนรู้สิ่งใหม่"],
+        "สร้างสรรค์": ["วาดรูป", "สร้างงานศิลปะ", "ฟังเพลง", "มองหาแรงบันดาลใจ"],
+        "ผจญภัย": ["ท่องเที่ยว", "เดินทาง", "ผจญภัย", "หาทางหนี"]
+    };
+    for (const trait in traits) {
+        if (traits[trait].includes(answer)) {
+            return trait;
         }
+    }
+    return "อ่อนโยน";
+}
 
-        function showResult(trait) {
-            let resultText = `คุณเป็นคนที่ ${trait}`;
-            if (mode === "long") {
-                const maxTrait = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
-                resultText = `ผลรวม: คุณเป็นคนที่ ${maxTrait}!`;
-            }
-            const resultDiv = document.getElementById("result");
-            resultDiv.textContent = resultText;
-        }
+
+        function showResult() {
+    const maxTrait = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+    const totalPoints = Object.values(scores).reduce((acc, val) => acc + val, 0);
+    const percentage = Math.round((scores[maxTrait] / totalPoints) * 100);
+    const resultText = `ผลลัพธ์: คุณเป็นคนที่ ${maxTrait} (${percentage}%)`;
+    const resultDiv = document.getElementById("result");
+    resultDiv.textContent = resultText;
+}
+
 
         function goBack() {
             window.location.href = "index.html";
